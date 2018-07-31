@@ -46,19 +46,57 @@ typedef struct rtems_capture_buffer {
   size_t   max_rec;      /**< The largest record in the buffer. */
 } rtems_capture_buffer;
 
+/**
+ * CTF Packet header. Required at the start of the
+ * buffer.
+ */
+typedef struct rtems_capture_ctf_packet_header {
+  uint32_t magic;
+  uint32_t stream_id;
+} rtems_capture_ctf_packet_header;
+
+/**
+ * CTF Packer context. Required at the start of the
+ * buffer, after the header.
+ */
+typedef struct rtems_capture_ctf_packet_context {
+  uint32_t content_size;
+  uint32_t cpu_id;
+} rtems_capture_ctf_packet_context;
+
 static inline void
 rtems_capture_buffer_flush (rtems_capture_buffer* buffer)
 {
   buffer->end = buffer->size;
-  buffer->head = buffer->tail =  0;
   buffer->count = 0;
   buffer->max_rec = 0;
 }
 
 static inline void
-rtems_capture_buffer_create (rtems_capture_buffer* buffer, size_t size)
+rtems_capture_buffer_create (rtems_capture_buffer* buffer, size_t size, uint32_t cpu_id)
 {
-  buffer->buffer = malloc(size);
+  uint32_t ctf_header_size = sizeof(rtems_capture_ctf_packet_header) +
+                             sizeof(rtems_capture_ctf_packet_context);
+  rtems_capture_ctf_packet_header*  ctf_header = NULL;
+  rtems_capture_ctf_packet_context* ctf_context = NULL;
+
+  buffer->buffer = malloc(size + ctf_header_size);
+
+  ctf_header = (rtems_capture_ctf_packet_header*)buffer;
+  ctf_header->magic = 0xC1FC1FC1;
+  ctf_header->stream_id = 0;
+
+  ctf_context = (rtems_capture_ctf_packet_context*)(buffer +
+                 sizeof(rtems_capture_ctf_packet_header));
+  ctf_context->content_size = ctf_header_size;
+  ctf_context->cpu_id = cpu_id;
+
+  /* This can work because CTF events within a packet are not expected to be
+   * ordered by timestamp. Even if the buffer wraps, the packet header
+   * and context are still in valid positions. 
+   * */
+  buffer->buffer = buffer->buffer + ctf_header_size;
+
   buffer->size = size;
   rtems_capture_buffer_flush (buffer);
 }

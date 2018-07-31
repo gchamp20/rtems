@@ -604,7 +604,7 @@ rtems_capture_open (uint32_t   size, rtems_capture_timestamp timestamp RTEMS_UNU
 
   for (i=0; i<count; i++) {
     buff = &capture_records_on_cpu(i);
-    rtems_capture_buffer_create( buff, size );
+    rtems_capture_buffer_create( buff, size, i );
     if (buff->buffer == NULL) {
       sc = RTEMS_NO_MEMORY;
       break;
