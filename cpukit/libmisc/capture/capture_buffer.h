@@ -82,13 +82,13 @@ rtems_capture_buffer_create (rtems_capture_buffer* buffer, size_t size, uint32_t
 
   buffer->buffer = malloc(size + ctf_header_size);
 
-  ctf_header = (rtems_capture_ctf_packet_header*)buffer;
+  ctf_header = (rtems_capture_ctf_packet_header*)buffer->buffer;
   ctf_header->magic = 0xC1FC1FC1;
   ctf_header->stream_id = 0;
 
-  ctf_context = (rtems_capture_ctf_packet_context*)(buffer +
+  ctf_context = (rtems_capture_ctf_packet_context*)(buffer->buffer +
                  sizeof(rtems_capture_ctf_packet_header));
-  ctf_context->content_size = ctf_header_size;
+  ctf_context->content_size = ctf_header_size << 8;
   ctf_context->cpu_id = cpu_id;
 
   /* This can work because CTF events within a packet are not expected to be

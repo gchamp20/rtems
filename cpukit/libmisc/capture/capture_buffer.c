@@ -30,8 +30,8 @@ void*
 rtems_capture_buffer_allocate (rtems_capture_buffer* buffer, size_t size)
 {
   void* ptr = NULL;
-  rtems_capture_ctf_packet_context* ctf_context = buffer->buffer -
-                                                  sizeof(rtems_capture_ctf_packet_context);
+  rtems_capture_ctf_packet_context* ctf_context = (rtems_capture_ctf_packet_context*)
+                                                  (buffer->buffer - sizeof(rtems_capture_ctf_packet_context));
 
   if ((buffer->count + size) <= buffer->end)
   {
@@ -61,7 +61,7 @@ rtems_capture_buffer_allocate (rtems_capture_buffer* buffer, size_t size)
       ptr = &buffer->buffer[buffer->head];
       buffer->head += size;
       buffer->count = buffer->count + size;
-      ctf_context->content_size = (buffer->count) << 3;
+      ctf_context->content_size = ctf_context->content_size + (size << 3);
       if (buffer->max_rec < size)
         buffer->max_rec = size;
     }
@@ -88,7 +88,7 @@ rtems_capture_buffer_allocate (rtems_capture_buffer* buffer, size_t size)
         ptr = buffer->buffer;
         buffer->head = size;
         buffer->count = buffer->count + size;
-        ctf_context->content_size = (buffer->count) << 3;
+        ctf_context->content_size = ctf_context->content_size + (size << 3);
         if (buffer->max_rec < size)
           buffer->max_rec = size;
       }
@@ -104,6 +104,8 @@ rtems_capture_buffer_free (rtems_capture_buffer* buffer, size_t size)
   void*  ptr;
   size_t next;
   size_t buff_size;
+  rtems_capture_ctf_packet_context* ctf_context = (rtems_capture_ctf_packet_context*)
+                                                  (buffer->buffer - sizeof(rtems_capture_ctf_packet_context));
 
   if (size == 0)
     return NULL;
@@ -119,6 +121,7 @@ rtems_capture_buffer_free (rtems_capture_buffer* buffer, size_t size)
   _Assert (!((buffer->tail < buffer->head) && (next > buffer->head)));
 
   buffer->count = buffer->count - size;
+  ctf_context->content_size = ctf_context->content_size - (size << 3);
 
   if (next == buffer->end)
   {
