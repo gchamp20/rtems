@@ -65,6 +65,8 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0(void)
 
   /* Clear Secure or Non-secure Vector Base Address Register */
   arm_cp15_set_vector_base_address(0);
+
+  //*coreMailboxInterruptCtrl = 0x1;
 }
 
 void BSP_START_TEXT_SECTION bsp_start_hook_1(void)
@@ -72,4 +74,5 @@ void BSP_START_TEXT_SECTION bsp_start_hook_1(void)
   bsp_start_copy_sections();
   bsp_memory_management_initialize();
   bsp_start_clear_bss();
+  //*coreMailboxInterruptCtrl = 0x1;
 }

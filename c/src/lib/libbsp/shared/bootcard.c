@@ -68,6 +68,9 @@ void boot_card(
 {
   rtems_interrupt_level  bsp_isr_level;
 
+  //*coreMailboxInterruptCtrl = 0x1;
+  printk("lmfao\n");
+
   /*
    *  Make sure interrupts are disabled.
    */
@@ -145,6 +148,7 @@ void boot_card(
    */
   bsp_postdriver_hook();
 
+  printk("b4 start multitask\n");
   /*
    *  Complete initialization of RTEMS and switch to the first task.
    *  Global C++ constructors will be executed in the context of that task.

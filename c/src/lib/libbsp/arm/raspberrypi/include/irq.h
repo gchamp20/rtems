@@ -33,7 +33,7 @@
  * @brief Interrupt support.
  */
 
-#define BCM2835_INTC_TOTAL_IRQ       64 + 8
+#define BCM2835_INTC_TOTAL_IRQ       64 + 8 + 1
 
 
 #define BCM2835_IRQ_ID_AUX           29
@@ -60,6 +60,8 @@
 #define BCM2835_IRQ_ID_GPU1_HALTED   69
 #define BCM2835_IRQ_ID_ILL_ACCESS_1  70
 #define BCM2835_IRQ_ID_ILL_ACCESS_0  71
+
+#define BCM2836_IRQ_ID_CORE0_MAILBOX0       72
 
 #define BSP_INTERRUPT_VECTOR_MIN    (0)
 #define BSP_INTERRUPT_VECTOR_MAX    (BCM2835_INTC_TOTAL_IRQ - 1)

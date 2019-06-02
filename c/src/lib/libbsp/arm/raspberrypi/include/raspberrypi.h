@@ -57,7 +57,7 @@
    #define RPI_PERIPHERAL_BASE      0x20000000
 #endif
 
-#define RPI_PERIPHERAL_SIZE         0x01000000
+#define RPI_PERIPHERAL_SIZE         0x01000100
 
 /**
  * @name Internal ARM Timer Registers

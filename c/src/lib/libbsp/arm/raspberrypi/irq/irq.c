@@ -43,6 +43,8 @@ static const bcm2835_irq_ctrl_reg_t bcm2835_irq_ctrl_reg_table[] = {
   { BCM2835_IRQ_ENABLE_BASIC, BCM2835_IRQ_DISABLE_BASIC }
 };
 
+// volatile unsigned int* coreMailboxInterruptCtrl = (volatile unsigned int*)0x40000050;
+
 static inline const bcm2835_irq_ctrl_reg_t *
 bsp_vector_to_reg(rtems_vector_number vector)
 {
@@ -90,6 +92,8 @@ static const int bcm2835_irq_speedup_table[] =
 /*
  * Determine the source of the interrupt and dispatch the correct handler.
  */
+volatile unsigned int* core0IntSrc = (volatile unsigned int*)0x40000060;
+
 void bsp_interrupt_dispatch(void)
 {
   unsigned int pend;
@@ -111,7 +115,12 @@ void bsp_interrupt_dispatch(void)
       if ( pend != 0 ) {
         pend_bit = ffs(pend) - 1;
         vector = pend_bit + 32;
-      }
+      } else {
+		pend = (*core0IntSrc) & 0x10;
+		if (pend == 0x10) {
+			vector = 72;
+		}
+	  }
     }
   }
 
@@ -154,5 +163,6 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
    BCM2835_REG(BCM2835_IRQ_DISABLE2) = 0xffffffff;
    BCM2835_REG(BCM2835_IRQ_DISABLE_BASIC) = 0xffffffff;
    BCM2835_REG(BCM2835_IRQ_FIQ_CTRL) = 0;
+//	*coreMailboxInterruptCtrl = 0x1;
    return RTEMS_SUCCESSFUL;
 }
